@@ -1,0 +1,22 @@
+{
+  "name": "kdyvolitgcp",
+  "version": "1.0.0",
+  "description": "firebase functions and other backend for KdyVolit.cz",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Penguibird/kdyvolitGCP.git"
+  },
+  "author": "Vojtech Loskot",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Penguibird/kdyvolitGCP/issues"
+  },
+  "homepage": "https://github.com/Penguibird/kdyvolitGCP#readme",
+  "dependencies": {
+    "firebase-functions": "^3.11.0"
+  }
+}
