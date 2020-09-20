@@ -42,30 +42,36 @@ exports.removeEmail = functions.https.onRequest(async (req, res) => {
 
 const remindPeopleOfElection = async (election) => {
     let users = await admin.firestore().collection('emails').get();
-    let usersToSendEmailTo = users.filter(user => user.data.elections.includes(election.code));
-    console.log("remind people elections", users[0], usersToSendEmailTo[0], election.code)
-    return await sendEmail(usersToSendEmailTo, reminderEmail.subject, reminderEmail.body(election))
+    let usersToSendEmailTo = [];
+    users.forEach(user => usersToSendEmailTo.push(user.data().elections.includes(election.code) && user.data()));
+    // console.log("remind people elections", usersToSendEmailTo[0], election.code)
+    return await sendEmail(usersToSendEmailTo.map(user => user.email), "subject", election.code)//reminderEmail.subject, reminderEmail.body(election))
 }
 
 const remindersForDatesInMiliSeconds = [1814400000, 172800000]; //3 weeks; 2 days
 exports.timer = functions.pubsub
     .schedule('every 1 minutes')
     .timeZone('Europe/Prague')
-    .onRun(context => {
+    .onRun(async context => {
         console.log("Hey, I ran, this is costing you money")
         let currentDate = new Date(context.timestamp);
         let elections = await admin.firestore().collection('elections').get();
         elections.forEach(res => {
-            election = res.data;
+
+            let election = res.data();
             let electionDate = new Date(election.dates[0].from);
             if (!election.reminded) election.reminded = [];
+            // console.log("OMG this runs too", election.dates[0].from);
 
             remindersForDatesInMiliSeconds.forEach((val, i) => {
+
                 if (!election.reminded[i]) {
                     if (currentDate.getTime() + remindersForDatesInMiliSeconds[i] >= electionDate.getTime()) {
-                        console.log(currentDate, "plus some amount of time", i, " is after ", electionDate);
+                        // console.log(currentDate, "plus some amount of time", i, " is after ", electionDate);
                         remindPeopleOfElection(election).then(val => {
                             election.reminded[i] = true;
+                            admin.firestore().collection('elections').doc(election.code).set({ reminded: election.reminded });
+                            // console.log("sent the mail I guess.")
                         }, err => {
                             console.error(err)
                         })
