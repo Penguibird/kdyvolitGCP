@@ -50,7 +50,7 @@ const remindPeopleOfElection = async (election) => {
 
 const remindersForDatesInMiliSeconds = [1814400000, 172800000]; //3 weeks; 2 days
 exports.timer = functions.pubsub
-    .schedule('every 1 minutes')
+    .schedule('every 60 minutes')
     .timeZone('Europe/Prague')
     .onRun(async context => {
         console.log("Hey, I ran, this is costing you money")
@@ -70,7 +70,7 @@ exports.timer = functions.pubsub
                         // console.log(currentDate, "plus some amount of time", i, " is after ", electionDate);
                         remindPeopleOfElection(election).then(val => {
                             election.reminded[i] = true;
-                            admin.firestore().collection('elections').doc(election.code).set({ reminded: election.reminded });
+                            admin.firestore().collection('elections').doc(election.code).set(election);
                             // console.log("sent the mail I guess.")
                         }, err => {
                             console.error(err)
